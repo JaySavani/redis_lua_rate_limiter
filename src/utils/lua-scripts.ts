@@ -5,7 +5,7 @@ export const SLIDING_WINDOW_LUA = `
   local requestId = ARGV[4]
   local key = KEYS[1]
 
-  local window_start = current_time - window_size * 1000
+  local window_start = current_time - window_size
   -- Remove timestamps older than the window
   redis.call('ZREMRANGEBYSCORE', key, '-inf', window_start)
 
@@ -16,7 +16,7 @@ export const SLIDING_WINDOW_LUA = `
     local oldest = redis.call('ZRANGE', key, 0, 0, 'WITHSCORES')
     local retry_after = 0
     if #oldest > 0 then
-      retry_after = math.ceil((tonumber(oldest[2]) + (window_size * 1000) - current_time) / 1000)
+      retry_after = math.ceil((tonumber(oldest[2]) + window_size - current_time) / 1000)
     end
     return {0, current_count, retry_after}
   end
